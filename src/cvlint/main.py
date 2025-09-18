@@ -103,103 +103,103 @@ def create_criteria_list() -> List[Criterion]:
         )
     ]
 
-# Wrapper functions to convert test functions to boolean returns
+# Wrapper functions to convert check functions to boolean returns
 def test_pdf_exists_wrapper() -> bool:
     try:
-        test_pdf_exists()
+        check_pdf_exists()
         return True
     except AssertionError:
         return False
 
 def test_pdf_page_count_wrapper() -> bool:
     try:
-        test_pdf_page_count()
+        check_pdf_page_count()
         return True
     except AssertionError:
         return False
 
 def test_pdf_file_size_wrapper() -> bool:
     try:
-        test_pdf_file_size()
+        check_pdf_file_size()
         return True
     except AssertionError:
         return False
 
 def test_pdf_font_sizes_wrapper() -> bool:
     try:
-        test_pdf_font_sizes()
+        check_pdf_font_sizes()
         return True
     except AssertionError:
         return False
 
 def test_pdf_links_https_wrapper() -> bool:
     try:
-        test_pdf_links_https()
+        check_pdf_links_https()
         return True
     except (AssertionError, pytest.skip.Exception):
         return False
 
 def test_pdf_no_images_wrapper() -> bool:
     try:
-        test_pdf_no_images()
+        check_pdf_no_images()
         return True
     except (AssertionError, pytest.skip.Exception):
         return False
 
 def test_pdf_background_white_wrapper() -> bool:
     try:
-        test_pdf_background_white()
+        check_pdf_background_white()
         return True
     except (AssertionError, pytest.skip.Exception):
         return False
 
 def test_pdf_all_pixels_no_saturation_wrapper() -> bool:
     try:
-        test_pdf_all_pixels_no_saturation()
+        check_pdf_all_pixels_no_saturation()
         return True
     except (AssertionError, pytest.skip.Exception):
         return False
 
 def test_pdf_spell_check_wrapper() -> bool:
     try:
-        test_pdf_spell_check()
+        check_pdf_spell_check()
         return True
     except AssertionError:
         return False
 
 def test_pdf_structure_wrapper() -> bool:
     try:
-        test_pdf_structure()
+        check_pdf_structure()
         return True
     except AssertionError:
         return False
 
 def test_pdf_not_corrupted_wrapper() -> bool:
     try:
-        test_pdf_not_corrupted()
+        check_pdf_not_corrupted()
         return True
     except AssertionError:
         return False
 
-# ---------- PDF Tests ----------
-def test_pdf_exists():
+# ---------- PDF Checks ----------
+def check_pdf_exists():
     assert PDF_PATH.is_file(), f"CV PDF not found at {PDF_PATH}"
 
 
-def test_pdf_page_count():
+def check_pdf_page_count():
     pdf = PdfReader(PDF_PATH)
     assert len(pdf.pages) <= 1, f"CV is {len(pdf.pages)} pages (should be ≤1 page)"
 
 
-def test_pdf_file_size():
-    """Test that the PDF file size is within the specified limit."""
+def check_pdf_file_size():
+    """Check that the PDF file size is within the specified limit."""
     file_size_kb = PDF_PATH.stat().st_size / 1024
     assert (
         file_size_kb <= MAX_FILE_SIZE_KB
     ), f"CV file size is {file_size_kb:.1f}KB (should be ≤{MAX_FILE_SIZE_KB}KB)"
 
 
-def test_pdf_font_sizes(min_size=MIN_FONT, max_size=MAX_FONT):
+def check_pdf_font_sizes(min_size=MIN_FONT, max_size=MAX_FONT):
     """Test that all fonts in the PDF are within the specified size range."""
     errors = []
 
@@ -238,8 +238,8 @@ def test_pdf_font_sizes(min_size=MIN_FONT, max_size=MAX_FONT):
         raise AssertionError("\n".join(errors))
 
 
-def test_pdf_links_https():
-    """Test that all links in the PDF use HTTPS when ENFORCE_HTTPS is True."""
+def check_pdf_links_https():
+    """Check that all links in the PDF use HTTPS when ENFORCE_HTTPS is True."""
     if not ENFORCE_HTTPS:
         pytest.skip("HTTPS enforcement is disabled")
 
@@ -259,8 +259,8 @@ def test_pdf_links_https():
         assert link.startswith("https://"), f"Link '{link}' does not use HTTPS"
 
 
-def test_pdf_no_images():
-    """Test that the PDF contains no images when NO_IMAGES is True."""
+def check_pdf_no_images():
+    """Check that the PDF contains no images when NO_IMAGES is True."""
     if not NO_IMAGES:
         pytest.skip("Image checking is disabled")
 
@@ -277,8 +277,8 @@ def test_pdf_no_images():
                     ), f"Found image '{obj_name}' on page {page_num + 1}, but NO_IMAGES is True"
 
 
-def test_pdf_background_white():
-    """Test that the PDF has a white background when BACKGROUND_WHITE is True."""
+def check_pdf_background_white():
+    """Check that the PDF has a white background when BACKGROUND_WHITE is True."""
     if not BACKGROUND_WHITE:
         pytest.skip("Background color checking is disabled")
 
@@ -302,11 +302,11 @@ def rgb_to_hsv(rgb):
     return h, s, v
 
 
-def test_pdf_all_pixels_no_saturation(tolerance=0.01):
-
+def check_pdf_all_pixels_no_saturation(tolerance=0.01):
+    """Check that every pixel in the PDF has saturation <= tolerance (i.e., grayscale)."""
     if not GRAYSCALE_COLORS:
         pytest.skip("Grayscale color checking is disabled")
-    """Test that every pixel in the PDF has saturation <= tolerance (i.e., grayscale)."""
+    
     doc = fitz.open(PDF_PATH)
 
     for page_num, page in enumerate(doc, start=1):
@@ -326,8 +326,8 @@ def test_pdf_all_pixels_no_saturation(tolerance=0.01):
     print("All pixels have zero (or near zero) saturation — PDF is grayscale.")
 
 
-def test_pdf_spell_check():
-    """Test that the PDF text passes spell checking with custom words and capitalization rules."""
+def check_pdf_spell_check():
+    """Check that the PDF text passes spell checking with custom words and capitalization rules."""
     pdf = PdfReader(PDF_PATH)
     spell = SpellChecker()
 
@@ -369,7 +369,7 @@ def test_pdf_spell_check():
         if word in allowed_words or spell.known([word]):
             continue
 
-        # Check for capitalization errors in custom words
+        # Check for capitalization errors in custom words FIRST
         found_capitalization_error = False
         for custom_word in CUSTOM_WORDS:
             if word.lower() == custom_word.lower() and word != custom_word:
@@ -381,14 +381,23 @@ def test_pdf_spell_check():
                     found_capitalization_error = True
                     break
 
-        if not found_capitalization_error:
-            # Additional filtering for likely valid words
-            if word.lower().startswith(".") or word.lower().endswith("."):
-                continue
-            if any(tech in word.lower() for tech in ["js", "sql", "xml", "json"]):
-                continue
+        # If we found a capitalization error, skip further processing of this word
+        if found_capitalization_error:
+            continue
 
-            actual_misspelled.append(word)
+        # Additional filtering for likely valid words (only for non-capitalization errors)
+        if word.lower().startswith(".") or word.lower().endswith("."):
+            continue
+        if any(tech in word.lower() for tech in ["js", "sql", "xml", "json"]):
+            continue
+        # Skip common URL terms
+        if word.lower() in ["https", "http", "www", "com", "org", "net"]:
+            continue
+        # Skip words that are part of URLs or email addresses
+        if any(url_part in word.lower() for url_part in ["github", "linkedin", "gmail", "yahoo", "hotmail"]):
+            continue
+
+        actual_misspelled.append(word)
 
     # Remove duplicates while preserving order
     actual_misspelled = list(dict.fromkeys(actual_misspelled))
@@ -403,8 +412,8 @@ def test_pdf_spell_check():
     assert len(all_errors) == 0, "; ".join(all_errors)
 
 
-def test_pdf_structure():
-    """Test basic PDF structure and readability."""
+def check_pdf_structure():
+    """Check basic PDF structure and readability."""
     pdf = PdfReader(PDF_PATH)
 
     # Test that PDF has metadata
@@ -429,8 +438,8 @@ def test_pdf_structure():
         ), f"Page {page_num + 1} should contain readable text"
 
 
-def test_pdf_not_corrupted():
-    """Test that the PDF is not corrupted and can be properly read."""
+def check_pdf_not_corrupted():
+    """Check that the PDF is not corrupted and can be properly read."""
     try:
         pdf = PdfReader(PDF_PATH)
         # Try to access all pages
