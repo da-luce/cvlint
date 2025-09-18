@@ -1,0 +1,48 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Poetry virtual environments (optional, if you keep venv inside your project)
+.venv/
+venv/
+env/
+ENV/
+
+# VSCode settings folder
+.vscode/
+
+# PyCharm settings folder
+.idea/
+
+# pytest cache
+.pytest_cache/
+
+# mypy cache
+.mypy_cache/
+
+# Coverage reports
+.coverage
+htmlcov/
+.coverage.*
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Ignore poetry.lock? NO! Commit it, so don’t ignore.
+
+# Ignore poetry virtual env config file (optional)
+.poetry/
+
+# Environment variables file
+.env
+
+# Others
+*.log
+*.pdf
