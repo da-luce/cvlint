@@ -13,7 +13,7 @@ from tests.utils import (
     create_pdf_with_spelling_errors,
     create_pdf_without_metadata,
     create_temp_pdf_file,
-    cleanup_temp_file
+    cleanup_temp_file,
 )
 from reportlab.lib.colors import red, blue, Color
 
@@ -33,7 +33,7 @@ def valid_pdf():
         font_size=12,
         pages=1,
         author="John Doe",
-        title="John Doe CV"
+        title="John Doe CV",
     )
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
@@ -47,7 +47,7 @@ def multi_page_pdf():
         text="This CV has multiple pages",
         pages=3,
         author="Test Author",
-        title="Multi-page CV"
+        title="Multi-page CV",
     )
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
@@ -69,7 +69,7 @@ def small_font_pdf():
     pdf_bytes = create_font_size_test_pdf(
         small_font=6,  # Below MIN_FONT (8)
         large_font=12,  # Normal size
-        include_normal=True
+        include_normal=True,
     )
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
@@ -82,7 +82,7 @@ def large_font_pdf():
     pdf_bytes = create_font_size_test_pdf(
         small_font=12,  # Normal size
         large_font=24,  # Above MAX_FONT (21)
-        include_normal=True
+        include_normal=True,
     )
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
@@ -96,7 +96,7 @@ def http_link_pdf():
         text="CV with HTTP link",
         add_link="http://example.com",
         author="Test Author",
-        title="HTTP Link CV"
+        title="HTTP Link CV",
     )
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
@@ -110,7 +110,7 @@ def https_link_pdf():
         text="CV with HTTPS link",
         add_link="https://example.com",
         author="Test Author",
-        title="HTTPS Link CV"
+        title="HTTPS Link CV",
     )
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
@@ -121,10 +121,7 @@ def https_link_pdf():
 def pdf_with_image():
     """Create a PDF with embedded images."""
     pdf_bytes = create_basic_pdf(
-        text="CV with image",
-        add_image=True,
-        author="Test Author",
-        title="Image CV"
+        text="CV with image", add_image=True, author="Test Author", title="Image CV"
     )
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
@@ -138,7 +135,7 @@ def colored_background_pdf():
         text="CV with colored background",
         background_color=red,
         author="Test Author",
-        title="Colored Background CV"
+        title="Colored Background CV",
     )
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
@@ -188,36 +185,3 @@ def corrupted_pdf():
     temp_file = create_temp_pdf_file(pdf_bytes)
     yield temp_file
     cleanup_temp_file(temp_file)
-
-
-@pytest.fixture
-def mock_pdf_path():
-    """Mock the PDF_PATH variable for testing."""
-    def _mock_pdf_path(pdf_file_path):
-        """Context manager to mock PDF_PATH."""
-        return patch('src.cvlint.main.PDF_PATH', Path(pdf_file_path))
-    return _mock_pdf_path
-
-
-@pytest.fixture
-def mock_config():
-    """Mock configuration variables for testing."""
-    def _mock_config(**config_overrides):
-        """Context manager to mock configuration variables."""
-        patches = []
-        for key, value in config_overrides.items():
-            patches.append(patch(f'src.cvlint.main.{key}', value))
-        
-        class MockConfig:
-            def __enter__(self):
-                for p in patches:
-                    p.__enter__()
-                return self
-            
-            def __exit__(self, exc_type, exc_val, exc_tb):
-                for p in reversed(patches):
-                    p.__exit__(exc_type, exc_val, exc_tb)
-        
-        return MockConfig()
-    
-    return _mock_config

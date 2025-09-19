@@ -1,6 +1,8 @@
-# cvlint
+# 📝 cvlint
 
 A tool for linting your [curriculum vitae](https://en.wikipedia.org/wiki/Curriculum_vitae)! Validates PDF resumes against quality criteria to ensure they meet professional standards.
+
+![Screenshot Example](https://daluce-cvlint-assets.s3.us-east-2.amazonaws.com/screenshot.png)
 
 ## What is cvlint?
 
